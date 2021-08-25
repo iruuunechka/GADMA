@@ -2,7 +2,7 @@ import numpy as np
 
 from . import GeneticAlgorithm
 from .global_optimizer import register_global_optimizer
-from ..hqea import GreedyQAgent, div_reward, better_count_state
+from ..hqea import GreedyQAgent, DivReward, BetterCountState
 from ..utils import WeightedMetaArray
 from ..utils import sort_by_other_list
 
@@ -93,8 +93,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                  mutation_type='gaussian', one_fifth_rule=True,
                  crossover_type='uniform', crossover_k=None,
                  random_type='resample', custom_rand_gen=None,
-                 log_transform=False, maximize=False,
-                 q_agent=GreedyQAgent, reward_calculator=div_reward, state_calculator=better_count_state):
+                 log_transform=False, maximize=False):
         # Simple checks
         assert isinstance(gen_size, int)
         assert isinstance(n_elitism, int)
@@ -107,9 +106,9 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         assert (const_mut_rate >= 1 and const_mut_rate <= 2)
         assert (const_mut_strength >= 1 and const_mut_strength <= 2)
 
-        self.q_agent = q_agent
-        self.reward_calculator = reward_calculator
-        self.state_calculator = state_calculator
+        self.q_agent = GreedyQAgent()
+        self.reward_calculator = DivReward()
+        self.state_calculator = BetterCountState()
         self.cur_state = None
         self.cur_action = None
 
