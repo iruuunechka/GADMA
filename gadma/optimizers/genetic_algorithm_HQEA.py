@@ -1,15 +1,10 @@
-from . import GeneticAlgorithm
-from .optimizer import ConstrainedOptimizer, Optimizer
-from .global_optimizer import GlobalOptimizer, register_global_optimizer
-from ..hqea import GreedyQAgent, div_reward, better_count_state
-from ..utils import sort_by_other_list, choose_by_weight
-from ..utils import trunc_normal_3_sigma_rule, DiscreteVariable,\
-                    WeightedMetaArray, get_correct_dtype
-from ..utils import update_by_one_fifth_rule
-
 import numpy as np
-import copy
-import time
+
+from . import GeneticAlgorithm
+from .global_optimizer import register_global_optimizer
+from ..hqea import GreedyQAgent, div_reward, better_count_state
+from ..utils import WeightedMetaArray
+from ..utils import sort_by_other_list
 
 
 class GeneticAlgorithmHQEA(GeneticAlgorithm):
