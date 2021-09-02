@@ -210,9 +210,9 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
 
             # Calculate number of better individuals
             if self.q_agent.is_strict:
-                number_of_better += sum(i < Y_gen[x_ind] for f in fitness)
+                number_of_better += sum(f < Y_gen[x_ind] for f in fitness)
             else:
-                number_of_better += sum(i <= Y_gen[x_ind] for f in fitness)
+                number_of_better += sum(f <= Y_gen[x_ind] for f in fitness)
 
             #            print("Time of main part of mutation: " + str(t3 - t1))
 
