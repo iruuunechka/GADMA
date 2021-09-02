@@ -304,8 +304,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
             if self.one_fifth_rule:
                 run_info.cur_mut_rate = self.update_by_hqea(
                     run_info.cur_mut_rate,
-                    self.const_mut_rate,
-                    is_impr
+                    self.const_mut_rate
                 )
                 run_info.cur_mut_rate = max(0.01, min(1.0, run_info.cur_mut_rate))
             is_mut_best = False
@@ -315,7 +314,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
             run_info.cur_mut_strength = self.update_by_hqea(
                 run_info.cur_mut_strength,
                 self.const_mut_strength,
-                is_impr and is_mut_best
+                is_mut_best
             )
             run_info.cur_mut_strength = max(0.01, min(1.0, run_info.cur_mut_strength))
 
