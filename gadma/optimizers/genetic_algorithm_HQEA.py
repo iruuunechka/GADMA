@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import GeneticAlgorithm
+from . import GeneticAlgorithm, Optimizer
 from .global_optimizer import register_global_optimizer
 from ..hqea import GreedyQAgent, DivReward, BetterCountState
 from ..utils import WeightedMetaArray
@@ -111,6 +111,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         self.state_calculator = BetterCountState()
         self.cur_state = None
         self.cur_action = None
+        self.cur_reward = None
 
         # todo call super
         GeneticAlgorithm.__init__(self, gen_size, n_elitism,
@@ -233,10 +234,10 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                     new_X_gen[-1].weights = x.weights
 
         # Update learning values
-        reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind])
+        self.cur_reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind])
         new_state = self.state_calculator.calculate(number_of_better)
         if self.cur_action is not None:
-            self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, reward)
+            self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
         self.cur_state = new_state
         self.cur_action = self.q_agent.choose_action(self.cur_state)
 
@@ -322,6 +323,11 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         if gen_time is not None:
             run_info.gen_times.append(gen_time)
 
+        # Save learning info
+        run_info.cur_state = self.cur_state
+        run_info.cur_reward = self.cur_reward
+        run_info.cur_action = self.cur_action
+
         # Create message and success status
         stoped, status, message = self.is_stopped(run_info.result.n_iter,
                                                   run_info.result.n_eval,
@@ -345,6 +351,70 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         if condition and (self.cur_action == 0):
             return value * const
         return value / (const) ** (0.25)
+
+
+    @staticmethod
+    def _write_report_to_stream(variables, run_info, stream):
+        """
+        Write report about one generation in report file.
+
+        :param run_info: Run info that should have at least the following
+                         fields:
+                         * `result` (:class:`gadma.optimizers.OptimizerResult`\
+                         type) - current result,
+                         * `gen_times` - list of iteration times.
+        :param report_file: File to write report. If None then to stdout.
+
+        :note: All values are reported as is, i.e. `X_gen`, `x_best` should be\
+               already translated from log scale if optimization did so;\
+               `Y_gen` and `y_best` must be already multiplied by -1 if we\
+               have maximization instead of minimization.
+        """
+        n_gen = run_info.result.n_iter
+        X_gen = run_info.result.X_out
+        Y_gen = run_info.result.Y_out
+        x_best = run_info.result.x
+        y_best = run_info.result.y
+        mean_time = np.mean(run_info.gen_times)
+
+        print(f"Generation #{n_gen}.", file=stream)
+        print("Current generation of solutions:", file=stream)
+        print("N", "Value of fitness function", "Solution",
+              file=stream, sep='\t')
+
+        for i, (x, y) in enumerate(zip(X_gen, Y_gen)):
+            # Use parent's report write function
+            string = Optimizer._n_iter_string(
+                n_iter=i,
+                variables=variables,
+                x=x,
+                y=f'{y: 5f}',
+            )
+            print(string, file=stream)
+
+        print(f"Current mean mutation rate:\t{run_info.cur_mut_rate: 3f}",
+              file=stream)
+        print(f"Current mean number of params to change during mutation:\t"
+              f"{max(int(run_info.cur_mut_strength * len(variables)), 1): 3d}",
+              file=stream)
+        print("State: ", run_info.cur_state, file=stream)
+        print("Action: ", run_info.cur_action, file=stream)
+        print("Reward: ", run_info.cur_reward, file=stream)
+        print("\n--Best solution by value of fitness function--", file=stream)
+        print("Value of fitness:", y_best, file=stream)
+        print("Solution:", file=stream, end='')
+
+        string = Optimizer._n_iter_string(
+            n_iter='',
+            variables=variables,
+            x=x_best,
+            y='',
+        )
+        print(string, file=stream)
+
+        if mean_time is not None:
+            print(f"\nMean time:\t{mean_time:.3f} sec.\n", file=stream)
+        print("\n", file=stream)
 
 
 register_global_optimizer('Genetic_algorithm_HQEA', GeneticAlgorithmHQEA)
