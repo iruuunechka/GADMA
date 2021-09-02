@@ -233,23 +233,6 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                 if isinstance(x, WeightedMetaArray):
                     new_X_gen[-1].weights = x.weights
 
-        # Update learning values
-        self.cur_reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind])
-        new_state = self.state_calculator.calculate(number_of_better)
-        if self.cur_action is not None:
-            self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
-        self.cur_state = new_state
-        self.cur_action = self.q_agent.choose_action(self.cur_state)
-
-        # Case when actions have the same q_values
-        diff = Y_gen[best_fitness_ind] - best_fitness
-        if self.cur_action == -1:
-            condition = (diff >= self.eps) if self.q_agent.is_strict else ((diff <= self.eps) and (diff >= 0))
-            if condition:
-                self.cur_action = 0
-            else:
-                self.cur_action = 1
-
         # 3. Crossover
         for i in range(n_offsprings):
             ind1, ind2 = np.random.choice(range(len(X_gen)), size=2, p=p)
@@ -267,11 +250,32 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
             new_X_gen.append(x)
             new_Y_gen.append(f(x))
 
-        # Sort by fitness and return new generation
+        # Sort by fitness
         new_X_gen, new_Y_gen = sort_by_other_list(new_X_gen, new_Y_gen,
                                                   reverse=False)
+
+        # Update learning values
+        self.cur_reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind],
+                                                           new_Y_gen.index(best_fitness) + 1)
+        new_state = self.state_calculator.calculate(number_of_better)
+        if self.cur_action is not None:
+            self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
+        self.cur_state = new_state
+        self.cur_action = self.q_agent.choose_action(self.cur_state)
+
+        # Case when actions have the same q_values
+        diff = Y_gen[best_fitness_ind] - best_fitness
+        if self.cur_action == -1:
+            condition = (diff >= self.eps) if self.q_agent.is_strict else ((diff <= self.eps) and (diff >= 0))
+            if condition:
+                self.cur_action = 0
+            else:
+                self.cur_action = 1
+
+        # Return new generation
         new_X_gen = new_X_gen[:self.gen_size]
         new_Y_gen = new_Y_gen[:self.gen_size]
+
         return new_X_gen, new_Y_gen
 
     def _update_run_info(self, run_info, x_best, y_best, X, Y,
