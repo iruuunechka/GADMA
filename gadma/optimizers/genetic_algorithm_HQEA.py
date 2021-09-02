@@ -112,6 +112,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         self.cur_state = None
         self.cur_action = None
         self.cur_reward = None
+        self.reward_debug = None
 
         # todo call super
         GeneticAlgorithm.__init__(self, gen_size, n_elitism,
@@ -257,6 +258,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         # Update learning values
         self.cur_reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind],
                                                            new_Y_gen.index(best_fitness) + 1)
+        self.reward_debug = best_fitness + ' ' + Y_gen[best_fitness_ind] + ' ' + new_Y_gen.index(best_fitness)
         new_state = self.state_calculator.calculate(number_of_better)
         if self.cur_action is not None:
             self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
@@ -331,6 +333,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         run_info.cur_state = self.cur_state
         run_info.cur_reward = self.cur_reward
         run_info.cur_action = self.cur_action
+        run_info.reward_debug = self.reward_debug
 
         # Create message and success status
         stoped, status, message = self.is_stopped(run_info.result.n_iter,
@@ -404,6 +407,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         print("State: ", run_info.cur_state, file=stream)
         print("Action: ", run_info.cur_action, file=stream)
         print("Reward: ", run_info.cur_reward, file=stream)
+        print("Reward debug: ", run_info.reward_debug, file=stream)
         print("\n--Best solution by value of fitness function--", file=stream)
         print("Value of fitness:", y_best, file=stream)
         print("Solution:", file=stream, end='')
