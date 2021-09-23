@@ -1,3 +1,5 @@
 class BetterCountState:
-    def calculate(self, better_mutants):
+    @staticmethod
+    def calculate(better_mutants):
         return better_mutants
+
