@@ -21,8 +21,8 @@ class GreedyQAgent:
     def choose_action(self, state):
         if np.random.random() < self.epsilon:
             return np.random.choice(range(self.actions))
-        if self.q_map.get((state, 0), 0.0) == self.q_map.get((state, 1), 0.0):
-            return -1
+        # if self.q_map.get((state, 0), 0.0) == self.q_map.get((state, 1), 0.0):
+        #     return -1
         return self.argmax_in_q(state)
 
     def max_in_q(self, state):

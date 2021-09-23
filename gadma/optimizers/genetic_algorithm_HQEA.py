@@ -267,18 +267,19 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
             self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
         self.cur_state = new_state
         self.cur_action = self.q_agent.choose_action(self.cur_state)
-        self.reward_debug = str(best_fitness) + " " + str(Y_gen[best_fitness_ind]) + " " + \
-                            str(new_Y_gen.index(best_fitness)) + " " + str(self.q_agent.q_map.get((self.cur_state, self.cur_action)))
 
         # Case when actions have the same q_values
-        diff = Y_gen[best_fitness_ind] - best_fitness
-        if self.cur_action == -1:
-            condition = (diff >= self.eps) if self.q_agent.is_strict else ((diff <= self.eps) and (diff >= 0))
-            if condition:
-                self.cur_action = 0
-            else:
-                self.cur_action = 1
+        # todo maybe Y_gen[best_fitness_ind] -> Y_gen[0] ?
+        # diff = Y_gen[best_fitness_ind] - best_fitness
+        # if self.cur_action == -1:
+        #     condition = (diff >= self.eps) if self.q_agent.is_strict else ((diff <= self.eps) and (diff >= 0))
+        #     if condition:
+        #         self.cur_action = 0
+        #     else:
+        #         self.cur_action = 1
 
+        self.reward_debug = str(best_fitness) + " " + str(Y_gen[best_fitness_ind]) + " " + \
+                            str(new_Y_gen.index(best_fitness)) + " " + str(self.q_agent.q_map.get((self.cur_state, self.cur_action)))
         # Return new generation
         new_X_gen = new_X_gen[:self.gen_size]
         new_Y_gen = new_Y_gen[:self.gen_size]
