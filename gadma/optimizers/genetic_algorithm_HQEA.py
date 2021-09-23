@@ -262,7 +262,8 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         # Update learning values
         self.cur_reward = self.reward_calculator.calculate(best_fitness, Y_gen[best_fitness_ind],
                                                            new_Y_gen.index(best_fitness) + 1)
-        self.reward_debug = str(best_fitness) + " " + str(Y_gen[best_fitness_ind]) + " " + str(new_Y_gen.index(best_fitness))
+        self.reward_debug = str(best_fitness) + " " + str(Y_gen[best_fitness_ind]) + " " + \
+                            str(new_Y_gen.index(best_fitness)) + str(self.q_agent.q_map.get((self.cur_state, self.cur_action)))
         new_state = self.state_calculator.calculate(number_of_better, number_of_better_than_best)
         if self.cur_action is not None:
             self.q_agent.update_experience(self.cur_state, new_state, self.cur_action, self.cur_reward)
