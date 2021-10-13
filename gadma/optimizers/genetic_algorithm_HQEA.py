@@ -319,7 +319,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                     run_info.cur_mut_rate,
                     self.const_mut_rate
                 )
-                run_info.cur_mut_rate = max(0.01, min(0.5, run_info.cur_mut_rate))
+                run_info.cur_mut_rate = max(0.01, run_info.cur_mut_rate)
             is_mut_best = False
             x_best = run_info.result.x
             if hasattr(x_best, 'weights') and len(x_best.metadata) > 0:
@@ -329,7 +329,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                 self.const_mut_strength,
                 is_mut_best
             )
-            run_info.cur_mut_strength = max(0.01, min(0.5, run_info.cur_mut_strength))
+            run_info.cur_mut_strength = max(0.01, run_info.cur_mut_strength)
 
         # Save gen_time
         if gen_time is not None:
@@ -363,7 +363,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         """
         if condition and (self.cur_action == 0):
             return value * const
-        return value / (const) ** (0.25)
+        return value / (const)
 
 
     @staticmethod
@@ -406,6 +406,8 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
             print(string, file=stream)
 
         print(f"Current mean mutation rate:\t{run_info.cur_mut_rate: 3f}",
+              file=stream)
+        print(f"Current mean mutation strength:\t{run_info.cur_mut_strength: 3f}",
               file=stream)
         print(f"Current mean number of params to change during mutation:\t"
               f"{max(int(run_info.cur_mut_strength * len(variables)), 1): 3d}",
