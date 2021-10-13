@@ -319,7 +319,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                     run_info.cur_mut_rate,
                     self.const_mut_rate
                 )
-                run_info.cur_mut_rate = max(0.01, run_info.cur_mut_rate)
+                run_info.cur_mut_rate = max(0.01, min(1.0, run_info.cur_mut_rate))
             is_mut_best = False
             x_best = run_info.result.x
             if hasattr(x_best, 'weights') and len(x_best.metadata) > 0:
@@ -329,7 +329,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
                 self.const_mut_strength,
                 is_mut_best
             )
-            run_info.cur_mut_strength = max(0.01, run_info.cur_mut_strength)
+            run_info.cur_mut_strength = max(0.01, min(1.0, run_info.cur_mut_strength))
 
         # Save gen_time
         if gen_time is not None:
