@@ -85,6 +85,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
     :param maximize: If True then optimization will maximize function.
     :type maximize: bool
     """
+    MAX_STAGNATION_COUNT = 100
     def __init__(self, gen_size=10, n_elitism=2,
                  p_mutation=0.3, p_crossover=0.3, p_random=0.2,
                  mut_strength=0.2, const_mut_strength=1.1,
@@ -114,6 +115,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         self.cur_action = None
         self.cur_reward = None
         self.reward_debug = None
+        self.stagnation_count = 0
 
         # todo call super
         GeneticAlgorithm.__init__(self, gen_size, n_elitism,
@@ -280,6 +282,12 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
 
         self.reward_debug = str(best_fitness) + " " + str(Y_gen[best_fitness_ind]) + " " + \
                             str(new_Y_gen.index(best_fitness)) + " " + str(self.q_agent.q_map.get((self.cur_state, self.cur_action)))
+        # Algo with learning refresh in case of stagnation
+        if abs(new_Y_gen[0] - Y_gen[0]) < self.eps:
+            self.stagnation_count += 1
+        if self.stagnation_count > self.MAX_STAGNATION_COUNT:
+            self.stagnation_count = 0
+            self.q_agent = GreedyQAgent()
         # Return new generation
         new_X_gen = new_X_gen[:self.gen_size]
         new_Y_gen = new_Y_gen[:self.gen_size]
@@ -358,7 +366,7 @@ class GeneticAlgorithmHQEA(GeneticAlgorithm):
         Updates ``value`` according to HQEA algorithm and 'one-fifth' rule and ``const``.
 
         :param value: Value to change.
-        :param const: Const for one fifth rule.
+        :param const: Const to multiply or divide.
         :param condition: Bool for mutation strength -- if fitness was improved by mutation.
         """
         if condition and (self.cur_action == 0):

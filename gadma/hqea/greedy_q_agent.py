@@ -2,7 +2,7 @@ import numpy as np
 
 
 class GreedyQAgent:
-    def __init__(self, alpha=0.8, gamma=0.2, epsilon=0.0, actions=2, strict=False):
+    def __init__(self, alpha=0.8, gamma=0.2, epsilon=0.1, actions=2, strict=False):
         self.q_map = {}
         self.alpha = alpha
         self.gamma = gamma
